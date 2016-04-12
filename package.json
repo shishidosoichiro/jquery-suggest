@@ -1,0 +1,23 @@
+{
+  "name": "jquery-suggest",
+  "version": "0.0.1",
+  "description": "",
+  "main": "jquery-suggest.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/shishidosoichiro/jquery-suggest.git"
+  },
+  "keywords": [
+    "jquery",
+    "suggest"
+  ],
+  "author": "Soichiro Shishido",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shishidosoichiro/jquery-suggest/issues"
+  },
+  "homepage": "https://github.com/shishidosoichiro/jquery-suggest#readme"
+}
