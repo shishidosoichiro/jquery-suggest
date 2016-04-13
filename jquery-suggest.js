@@ -305,7 +305,7 @@ $(function(){
 		var $el = this.$el;
 		var current = $el.val();
 		var replaced = current.slice(0, start) + text + current.slice(start + length);
-		$el.val(replaced);
+		$el.val(replaced).trigger('input').change();
 		// Except IE
 		if ($el.get(0).selectionStart) {
 			$el.get(0).selectionStart = $el.get(0).selectionEnd = position;
