@@ -1,36 +1,3 @@
-/*
-# jquery-suggest
-
-## Usage
-
-### quick start
-
-```
-$(...).suggest(matcher)
-```
-
-matcher
-
-### basic usage
-
-```
-$(...).suggest(options)
-```
-
-* options
-	* matcher: 
-
-### method
-
-```
-$(...).suggest('start')
-```
-
-```
-$(...).suggest('stop')
-```
-
- */
 $(function(){
 	// Default settings
 	var defaults = {
@@ -96,8 +63,11 @@ $(function(){
 	keyCode = {
 		ENTER: 13,
 		ESC: 27,
+		SPACE: 32,
 		PAGE_UP: 33,
 		PAGE_DOWN: 34,
+		END: 35,
+		HOME: 36,
 		LEFT: 37,
 		UP: 38,
 		RIGHT: 39,
@@ -117,6 +87,7 @@ $(function(){
 		this.matcher = options.matcher;
 		this.html = options.html;
 		// ドロップダウン挿入先エレメントを取得する。
+//		this.$dropdown = options.$dropdown || $('<div />').insertAfter(this.$el);
 		this.$dropdown = options.$dropdown || $('<div class="suggest-dropdown"/>').appendTo($('body'));
 		// 開始
 		this.start();
@@ -127,7 +98,7 @@ $(function(){
 	Suggest.prototype.start = function() {
 		var $el = this.$el;
 		var el = this.el;
-		var matcher = this.matcher.bind(this);
+		var matcher = this.matcher.bind(el);
 		var dropdown = this.dropdown.bind(this);
 		var remove = this.remove.bind(this);
 		// テキストボックス・テキストエリアへの文字列入力時
@@ -137,8 +108,10 @@ $(function(){
 			if (!text) return;
 			var target = text.slice(0, caret(el).start);
 
-			matcher.call(this, target, dropdown);
+			matcher(target, dropdown);
 		});
+		// キーダウン時の処理
+		this.$el.on('keydown.suggest', this.keydown.bind(this));
 	};
 
 	// 終了
@@ -151,7 +124,7 @@ $(function(){
 	// ドロップダウンの削除
 	// ------------------
 	Suggest.prototype.remove = function(){
-		this.$el.off('keydown.suggest');
+		this.$el.off('keyup.suggest');
 		this.$el.off('blur.suggest');
 		this.$dropdown && this.$dropdown.empty();
 	}
@@ -166,7 +139,7 @@ $(function(){
 		this.remove();
 
 		// キー押下時の処理
-		this.$el.on('keydown.suggest', this.keydown.bind(this));
+		this.$el.on('keyup.suggest', this.keyup.bind(this));
 		// フォーカスを外れた場合は削除
 		this.$el.on('blur.suggest', this.remove.bind(this));
 
@@ -231,17 +204,31 @@ $(function(){
 		this.draw();
 	};
 
-	// キー入力の捕捉
+	// キーダウンの捕捉
 	// ------------------
 	Suggest.prototype.keydown = function(e){
-		if (!this.$dropdown) return;
-		if (this.$dropdown.parent().length === 0) return;
-
 		var $el = this.$el;
 		var el = $el.get(0);
 		var matcher = this.matcher.bind(el);
 		var list = this.list;
 		var dropdown = this.dropdown.bind(this);
+
+		// リストが表示されていない状態での処理
+		switch (e.keyCode) {
+		// SPACE(Ctrl): リストの再描画
+		case keyCode.SPACE:
+			if (!e.ctrlKey) return;
+			this.remove();
+			var text = $el.val();
+			if (!text) return;
+			var target = text.slice(0, caret(el).start);
+			return matcher(target, dropdown);
+		}
+
+		// リストが表示される場合の処理
+		if (!this.$dropdown) return;
+		if (this.$dropdown.html() === '') return;
+		if (this.$dropdown.parent().length === 0) return;
 
 		switch (e.keyCode) {
 		// ENTER: リスト内から選択
@@ -269,6 +256,7 @@ $(function(){
 
 		// LEFT: リストの再描画
 		case keyCode.LEFT:
+			if (e.ctrlKey) return; // Ctrlキー押下時は除外
 			this.remove();
 			var text = $el.val();
 			if (!text) return;
@@ -284,6 +272,7 @@ $(function(){
 
 		// RIGHT: リストの再描画
 		case keyCode.RIGHT:
+			if (e.ctrlKey) return; // Ctrlキー押下時は除外
 			this.remove();
 			var text = $el.val();
 			if (!text) return;
@@ -296,6 +285,43 @@ $(function(){
 			this.index++;
 			if (this.index >= list.length) this.index = 0;
 			return this.draw();
+		}
+	};
+
+	// キーアップの捕捉
+	// ------------------
+	Suggest.prototype.keyup = function(e){
+		if (!this.$dropdown) return;
+		if (this.$dropdown.parent().length === 0) return;
+
+		var $el = this.$el;
+		var el = $el.get(0);
+		var matcher = this.matcher.bind(el);
+		var list = this.list;
+		var dropdown = this.dropdown.bind(this);
+
+		switch (e.keyCode) {
+
+		// END: リストの再描画
+		// HOME: リストの再描画
+		case keyCode.END:
+		case keyCode.HOME:
+			this.remove();
+			var text = $el.val();
+			if (!text) return;
+			var target = text.slice(0, caret(el).start);
+			return matcher(target, dropdown);
+
+		// LEFT(Ctrl): リストの再描画
+		// RIGHT(Ctrl): リストの再描画
+		case keyCode.LEFT:
+		case keyCode.RIGHT:
+			if (!e.ctrlKey) return;
+			this.remove();
+			var text = $el.val();
+			if (!text) return;
+			var target = text.slice(0, caret(el).start);
+			return matcher(target, dropdown);
 		}
 	};
 
