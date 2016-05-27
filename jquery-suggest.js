@@ -118,6 +118,7 @@ $(function(){
 	// ------------------
 	Suggest.prototype.stop = function() {
 		this.$el.off('input.suggest');
+		this.$el.off('keydown.suggest');
 		this.remove();
 	};
 
@@ -185,19 +186,24 @@ $(function(){
 	// 候補からの選択
 	// ------------------
 	Suggest.prototype.select = function(index){
-		this.index = index || this.index;
+		this.index = typeof index === 'number' ? index : this.index;
 		this.remove();
 		this.callback(this.list[this.index], this.index, this.replace.bind(this));
+		this.remove();
 	}
 
 	// ドロップダウンの表示とイベントの設定
 	// ------------------
-	Suggest.prototype.dropdown = function(list, callback){
+	Suggest.prototype.dropdown = function(list, index, callback){
 		if (!list || list.length === 0) return;
+		if (arguments.length == 2) {
+			callback = index;
+			index = 0;
+		}
 
 		// コンテキストを初期化
 		this.list = list;
-		this.index = 0;
+		this.index = index || 0;
 		this.callback = callback;
 
 		// ドロップダウンを描画
