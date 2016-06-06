@@ -87,8 +87,9 @@ $(function(){
 		this.matcher = options.matcher;
 		this.html = options.html;
 		// ドロップダウン挿入先エレメントを取得する。
-//		this.$dropdown = options.$dropdown || $('<div />').insertAfter(this.$el);
-		this.$dropdown = options.$dropdown || $('<div class="suggest-dropdown"/>').appendTo($('body'));
+		this.$dropdown = options.$dropdown;
+		if (!this.$dropdown) this.$dropdown = $('body > .suggest-dropdown').eq(0);
+		if (this.$dropdown.length == 0) this.$dropdown = $('<div class="suggest-dropdown"/>').appendTo($('body'));
 		// 開始
 		this.start();
 	};
