@@ -166,7 +166,7 @@ $(function(){
 		}
 		// 下部分がはみ出てしまっている場合は、高さを調節します。
 		var $menu = this.$dropdown.find('.dropdown-menu');
-		var bottom = window.innerHeight - (offset.top + $menu.outerHeight());
+		var bottom = window.innerHeight + window.pageYOffset - (offset.top + $menu.outerHeight());
 		if (bottom < 0) $menu.css('height', $menu.height() + bottom);
 		// 隠れていたらスクロール
 		var $active = $dropdown.find('li.active');
